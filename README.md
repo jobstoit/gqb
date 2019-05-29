@@ -1,4 +1,8 @@
 # gQB
+[![coverage](https://godoc.org/github.com/jobstoit/gqb?status.svg)](https://godoc.org/github.com/jobstoit/gqb)
+[![pipeline status](https://gitlab.com/jobstoit/gsql/badges/master/pipeline.svg)](https://gitlab.com/jobstoit/gsql/commits/master)
+[![coverage report](https://gitlab.com/jobstoit/gsql/badges/master/coverage.svg)](https://gitlab.com/jobstoit/gsql/commits/master)
+[![go report](https://goreportcard.com/badge/github.com/jobstoit/gqb)](https://goreportcard.com/report/github.com/jobstoit/gqb)
 
 The generated Query Builder creates a query builder and if needed a migration using a yaml configuration.
 

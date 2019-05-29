@@ -1,0 +1,18 @@
+image: jobbitz/goci:1.12.4
+
+stages:
+- test
+
+variables:
+  PRJ: /prj
+
+before_script:
+- mkdir $PRJ && mv * $PRJ && cd $PRJ
+
+linter:
+  stage: test
+  script: golangci-lint run
+
+testing:
+  stage: test
+  script: go test -cover ./...

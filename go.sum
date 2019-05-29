@@ -1,0 +1,7 @@
+git.fuyu.moe/Fuyu/assert v0.0.2 h1:CVuQXquX/8exVVq8EvNvfIOxKOY2tpTBCOdaSYmwLZw=
+git.fuyu.moe/Fuyu/assert v0.0.2/go.mod h1:BPprDoQw9kDF0KeIjPYE6mDMXm69rhbLC9yQO25ReHE=
+git.ultraware.nl/NiseVoid/qb v2.1.4+incompatible h1:qq6waYzl+w7i5qYnrVhL2tCKnH9B2y5depFx8Sg2v9I=
+git.ultraware.nl/NiseVoid/qb v2.1.4+incompatible/go.mod h1:n0EmqW0v1D6bGDUw8N8wsfx+nIQt9Mc1sgSU8UExzP8=
+gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
+gopkg.in/yaml.v2 v2.2.2 h1:ZCJp+EgiOT7lHqUV2J862kp8Qj64Jo6az82+3Td9dZw=
+gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=

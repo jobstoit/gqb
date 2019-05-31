@@ -18,7 +18,8 @@ type config struct {
 	Enums  map[string][]string          `yaml:"enums,flow"`
 }
 
-func readConfig(data []byte) (m Model) {
+// ReadConfig reads the data of the given yaml file into a model
+func ReadConfig(data []byte) (m Model) {
 	c := config{}
 	catch(yaml.Unmarshal(data, &c))
 

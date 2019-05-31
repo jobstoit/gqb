@@ -55,7 +55,7 @@ func isCol(t *Table, types []DataType) bool {
 }
 
 func enums(t *Table, types []DataType) string {
-	return strings.Join(t.Enum(types), `, `)
+	return strings.Join(t.Enum(types), `", "`)
 }
 
 func isEnum(t *Table, types []DataType) bool {
@@ -130,7 +130,7 @@ func (t *{{title $t}}Type) Update() *qb.UpdateBuilder {
 	return t.table.Update()
 }
 
-//insert starts a INSERT query
+// Insert starts a INSERT query
 func (t *{{title $t}}Type) Insert(f ...qb.Field) *qb.InsertBuilder {
 	return t.table.Insert(f)
 }
@@ -146,6 +146,7 @@ func {{title $t}}() *{{title $t}}Type {
 	}
 }
 {{- else if isenum $t $.Types}}
+
 // {{title $t}}Type represents the enum "{{print $t}}
 type {{title $t}}Type []string
 
@@ -157,9 +158,10 @@ func (*{{title $t}}Type) SQL(_ qb.SQLBuilder) (q string, _[]interface{}) {
 
 // {{title $t}} returns a new {{title $t}}Type
 func {{title $t}}() *{{title $t}}Type {
-	return &{{title $t}}Type([]string{
-		{{- enums $t $.Types -}}
+	enu := {{title $t}}Type([]string{
+		"{{- enums $t $.Types -}}",
 	})
+	return &enu
 }
 {{end}}
 

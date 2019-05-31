@@ -11,7 +11,7 @@ func TestReadConfig(t *testing.T) {
 	data, err := ioutil.ReadFile(`./db.test.yml`)
 	catch(err)
 
-	m := readConfig(data)
+	m := ReadConfig(data)
 	expectInt(t, 5, len(m.Tables))
 
 	for _, typ := range m.Types {

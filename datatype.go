@@ -46,8 +46,20 @@ func (x *Table) Enum(types []DataType) []string {
 }
 
 // Query returns the table generate query
-func (x *Table) Query() string {
-	return ``
+func (x *Table) Query(types []DataType) (q string) {
+	col := x.Columns(types)
+	enu := x.Enum(types)
+
+	if len(col) > 0 {
+		q += "CREATE TABLE " + x.String() + "{\n"
+		q += ""
+	}
+
+	if len(enu) > 0 {
+		q += "CREATE ENUM " + x.String() + "{\n"
+	}
+
+	return
 }
 
 // Column contains the table column properties and

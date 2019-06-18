@@ -19,10 +19,6 @@ func CreateQbModel(m Model, wr io.Writer) {
 			`title`:  title,
 			`quote`:  quote,
 			`join`:   strings.Join,
-			`cols`:   cols,
-			`enums`:  enums,
-			`iscol`:  isCol,
-			`isenum`: isEnum,
 			`notnil`: notNil,
 			`qbtype`: qbType,
 		}).
@@ -42,24 +38,19 @@ func title(s interface{}) (t string) {
 	return
 }
 
-func quote(i interface{}) string {
-	return "`" + fmt.Sprint(i) + "`"
-}
-
-func cols(t *Table, types []DataType) []*Column {
-	return t.Columns(types)
-}
-
-func isCol(t *Table, types []DataType) bool {
-	return len(t.Columns(types)) > 0
-}
-
-func enums(t *Table, types []DataType) string {
-	return strings.Join(t.Enum(types), `", "`)
-}
-
-func isEnum(t *Table, types []DataType) bool {
-	return len(t.Enum(types)) > 0
+func quote(i ...interface{}) (s string) {
+	s += "`"
+	if len(i) == 0 {
+		return
+	}
+	for e, it := range i {
+		s += fmt.Sprint(it)
+		if e != len(i)-1 {
+			s += ` `
+		}
+	}
+	s += "`"
+	return
 }
 
 func notNil(x interface{}) bool {
@@ -84,11 +75,13 @@ func qbType(x DataType) string {
 }
 
 var tableTempl = `{{range $e, $t := $.Tables -}}
+{{- $cols := $t.Columns $.Types -}}
+{{- $enu := $t.Enum $.Types -}}
 // {{print $t}}
-{{- if iscol $t $.Types}}
+{{- if gt (len $cols) 0}}
 var (
 	qb{{title $t}}Table = qb.Table{Name: {{quote $t}}}
-	{{range cols $t $.Types}}
+	{{range $cols}}
 	qb{{title $t}}F{{title .Name}} = qb.TableField{Parent: &qb{{title $t}}Table, Name: {{quote .Name}}
 	{{- if notnil .DataType}}, Type: {{qbtype .DataType}}{{end -}}
 	{{- if gt .Size 0}}, Size: {{.Size}}{{end -}}
@@ -98,7 +91,7 @@ var (
 
 // {{title $t}}Type represents the table "{{print $t}}"
 type {{title $t}}Type struct {
-{{- range cols $t $.Types}}
+{{- range $cols}}
 	{{title .Name}} qb.Field
 {{- end}}
 	table *qb.Table
@@ -106,7 +99,16 @@ type {{title $t}}Type struct {
 
 // SQL is the qb.Query implementation for migration the {{title $t}} table
 func (*{{title $t}}Type) SQL(_ qb.SQLBuilder) (q string, _ []interface{}) {
-	q = {{quote .Query}}
+	q = {{quote}}CREATE TABLE IF NOT EXISTS {{print $t}} { {{range $n, $col := $cols}}
+	{{$col.Name -}}
+	{{- if notnil $col.DataType}} {{$col.DataType.Type}}{{end -}}
+	{{- if gt $col.Size 0}}({{$col.Size}}){{end -}}
+	{{- if $col.Primary}} PRIMARY{{end -}}
+	{{- if $col.Unique}} UNIQUE{{end -}}
+	{{- if not (eq $col.Default "")}} DEFAULT {{$col.Default}}{{end -}}
+	{{- range $g, $c := $col.Constraints }} ADD CONSTRAINT {{$c}}{{end -}}
+	{{- if $n}},{{end -}}
+	{{- end -}}{{- quote}}
 	return
 }
 
@@ -139,27 +141,28 @@ func (t *{{title $t}}Type) Insert(f ...qb.Field) *qb.InsertBuilder {
 func {{title $t}}() *{{title $t}}Type {
 	table := qb{{title $t}}Table
 	return &{{title $t}}Type{
-	{{- range cols $t $.Types}}
+	{{- range $cols}}
 		qb{{title $t}}F{{title .Name}}.Copy(&table),
 	{{- end}}
 		&table,
 	}
 }
-{{- else if isenum $t $.Types}}
-
+{{- else if gt (len $enu) 0}}
 // {{title $t}}Type represents the enum "{{print $t}}
 type {{title $t}}Type []string
 
 // SQL is the qb.Query implementation for migrating the {{title $t}} enum
 func (*{{title $t}}Type) SQL(_ qb.SQLBuilder) (q string, _[]interface{}) {
-	q = {{quote .Query}}
+	q = {{quote}}CREATE ENUM {{$t}}
+	{{- join $enu ", " -}}
+	{{- quote}}
 	return
 }
 
 // {{title $t}} returns a new {{title $t}}Type
 func {{title $t}}() *{{title $t}}Type {
-	enu := {{title $t}}Type([]string{
-		"{{- enums $t $.Types -}}",
+	return &{{title $t}}Type([]string{
+		{{- join $enu ", " -}}
 	})
 	return &enu
 }

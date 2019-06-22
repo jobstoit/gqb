@@ -23,8 +23,45 @@
 //
 package main
 
-import "fmt"
+import "flag"
+
+import "io/ioutil"
+import "os"
+
+// Flags for the application
+// nolint: deadcode, varcheck, unused
+var (
+	migrateFlag = flag.String(`migrate`, ``, `Specifies the output for the SQL migration`)
+	dbFlag      = flag.Bool(`db`, false, `Directly inserts the configured structur into the database`)
+	dvrFlag     = flag.String(`dvr`, `postgres`, `Sets the driver for the db flag. (postgres by default)`)
+	csFlag      = flag.String(`cs`, ``, `Sets the connection string for the db flag`)
+	modelFlag   = flag.String(`model`, ``, `Sets the output for the Nisevoid/qb models`)
+	pkgFlag     = flag.String(`pkg`, ``, `Used by the model flag, sets the package name of the model file(s)`)
+)
+
+var mdl Model
+
+func init() {
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+
+	cFile := flag.Arg(0)
+	if cFile == `` {
+		flag.PrintDefaults()
+		os.Exit(0)
+	}
+
+	bitz, err := ioutil.ReadFile(cFile)
+	catch(err)
+	mdl = readConfig(bitz)
+}
 
 func main() {
-	fmt.Println("vim-go")
+	if *modelFlag != `` {
+		modelFile, err := os.Create(*modelFlag)
+		catch(err)
+		defer modelFile.Close()
+		CreateQbModel(mdl, modelFile)
+	}
 }

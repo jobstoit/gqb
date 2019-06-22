@@ -23,13 +23,16 @@
 //
 package main
 
-import "flag"
-
-import "io/ioutil"
-import "os"
+import (
+	"bytes"
+	"database/sql"
+	"flag"
+	"fmt"
+	"io/ioutil"
+	"os"
+)
 
 // Flags for the application
-// nolint: deadcode, varcheck, unused
 var (
 	migrateFlag = flag.String(`migrate`, ``, `Specifies the output for the SQL migration`)
 	dbFlag      = flag.Bool(`db`, false, `Directly inserts the configured structur into the database`)
@@ -48,20 +51,96 @@ func init() {
 
 	cFile := flag.Arg(0)
 	if cFile == `` {
-		flag.PrintDefaults()
-		os.Exit(0)
+		return
 	}
 
-	bitz, err := ioutil.ReadFile(cFile)
-	catch(err)
-	mdl = readConfig(bitz)
+	if bitz, err := ioutil.ReadFile(cFile); err == nil {
+		mdl = readConfig(bitz)
+	}
+
+	if *dvrFlag != `` {
+		mdl.Driver = *dvrFlag
+	}
+
+	if mdl.Driver == `` {
+		if en := os.Getenv(`DB_DRIVER`); en != `` {
+			mdl.Driver = en
+		} else {
+			mdl.Driver = `postgres`
+		}
+	}
+
+	if *pkgFlag != `` {
+		mdl.Pkg = *pkgFlag
+	}
+
+	if mdl.Driver == `` {
+		mdl.Driver = `model`
+	}
+
+	if *csFlag == `` {
+		envCS := os.Getenv(`DB_CONNECTION_STRING`)
+		csFlag = &envCS
+	}
+
 }
 
 func main() {
+	var errs []error
+	success := make(map[string]string)
+
+	if len(mdl.Tables) == 0 {
+		flag.PrintDefaults()
+		return
+	}
 	if *modelFlag != `` {
-		modelFile, err := os.Create(*modelFlag)
-		catch(err)
-		defer modelFile.Close()
-		CreateQbModel(mdl, modelFile)
+		if file, err := os.Create(*modelFlag); err == nil {
+			defer file.Close() // nolint: errcheck
+
+			// nolint: errcheck
+			file.WriteString(`// This file is a generated file by github.com/jobstoit/gqb. PLEASE DO NOT EDIT
+
+package ` + mdl.Pkg)
+			CreateQbModel(mdl, file)
+			success[`model`] = `written to ` + *modelFlag
+		} else {
+			errs = append(errs, err)
+		}
+	}
+
+	if *migrateFlag != `` {
+		if file, err := os.Create(*migrateFlag); err == nil {
+			defer file.Close() // nolint: errcheck
+			CreateMigration(mdl, file)
+			success[`migration`] = `written to ` + *migrateFlag
+		} else {
+			errs = append(errs, err)
+		}
+	}
+
+	if *dbFlag {
+		buff := new(bytes.Buffer)
+		CreateMigration(mdl, buff)
+
+		if db, err := sql.Open(mdl.Driver, *csFlag); err == nil {
+			defer db.Close() // nolint: errcheck
+			if _, err = db.Exec(buff.String()); err != nil {
+				errs = append(errs, err)
+			}
+			success[`db`] = `succesfully executed the migration in the database`
+		} else {
+			errs = append(errs, err)
+		}
+	}
+
+	if len(success) > 0 {
+		fmt.Printf("\n        \x1b[34m0000      \n     \x1b[34m0000 \x1b[32m000      \x1b[34m##   ##  ##      ##       #####     #####   ##     ##   #####   #####    ##### \n   \x1b[34m0000    \x1b[32m000     \x1b[34m##   ##  ##      ####     ##  ##   ##   ##  ##     ##  ##   ##  ##  ##  ##   ##\n  \x1b[34m0000      \x1b[32m000    \x1b[34m##   ##  ##      ##       #####    #######  ##  #  ##  #######  #####   #######\n \x1b[34m0\x1b[36m000       \x1b[32m0000   \x1b[34m##   ##  ##      ##   ##  ## ##    ##   ##  ##  #  ##  ##   ##  ## ##   ##\n  \x1b[36m000000000 \x1b[32m0000    \x1b[34m######  ######   #####   ##  ##   ##   ##   ### ###   ##   ##  ##  ##   #####\n     \x1b[36m000000000\n\n                               \x1b[32m%s\x1b[0m\n", `succesfully generated`)
+		for key, val := range success {
+			fmt.Printf("%s: %s\n", key, val)
+		}
+	}
+
+	for _, err := range errs {
+		fmt.Println(err)
 	}
 }

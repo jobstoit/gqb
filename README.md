@@ -20,7 +20,7 @@ The gqb takes takes the following flags as arguments:
 
 -pkg			Specifies the package name for the qbmodels (default model)
 
--driver			Specifies the driver for sql generation (default postgres)
+-dvr			Specifies the driver for sql generation (default postgres)
 ```
 
 ## Configuration

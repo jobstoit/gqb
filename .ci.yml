@@ -8,6 +8,7 @@ variables:
 
 before_script:
 - mkdir $PRJ && mv * $PRJ && cd $PRJ
+- go mod download
 
 linter:
   stage: test

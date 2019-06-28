@@ -36,18 +36,13 @@ func (x *Table) Columns(types []DataType) (c []*Column) {
 }
 
 // Enum returns the enum values if the type is an enum
-func (x *Table) Enum(types []DataType) []string {
+func (x *Table) Enum(types []DataType) Enum {
 	for _, typ := range types {
 		if enu, ok := typ.(*Enum); ok && enu.Table == x {
-			return enu.Values
+			return *enu
 		}
 	}
-	return []string{}
-}
-
-// Query returns the table generate query
-func (x *Table) Query() string {
-	return ``
+	return Enum{}
 }
 
 // Column contains the table column properties and

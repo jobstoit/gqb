@@ -2,9 +2,9 @@
 
 // gqb is made for generating a query builder.
 //
-// The gqb command takes the path to the db.yml as argument
+// The gqb command takes the path to the db.yml as argument.
 //
-// The command takes the following flags as arguments
+// The command takes the following flags as arguments.
 //   -migrate 		Specifies the output for a generated sql migration
 //
 //   -db                Directly inserts the configured structure into the database
@@ -20,6 +20,33 @@
 //
 //   -pkg               Used by the model flag, sets the package name of the
 //                      model file(s)
+//
+// Configuration yaml example.
+//   pkg: models                     # optional, default model
+//   driver: postgres                # optional, default postgres
+//   tables:
+//     user:
+//       id: int, primary
+//       email: varchar, unique
+//       password: varhcar
+//       fist_name: varchar(50)
+//       last_name: varchar(100)
+//       role: role
+//
+//     post:
+//       id: int, primary
+//       created_by: user.id         # foreign key
+//       created_at: datetime
+//       updated_at: datetime
+//       title: varchar
+//       subtitle: varchar, nullable
+//       context: text
+//
+//   enums:
+//     role:
+//     - GENERAL_USER
+//     - MODERATOR
+//     - ADMIN
 //
 package main
 

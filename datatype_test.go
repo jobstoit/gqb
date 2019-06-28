@@ -39,6 +39,6 @@ func TestTable(t *testing.T) {
 		}
 	}
 	expectInt(t, 3, amm)
-	expectInt(t, 2, len(testTableRole.Enum(testModel.Types)))
-	expectInt(t, 0, len(testTableUser.Enum(testModel.Types)))
+	expectInt(t, 2, len(testTableRole.Enum(testModel.Types).Values))
+	expectInt(t, 0, len(testTableUser.Enum(testModel.Types).Values))
 }

@@ -185,10 +185,9 @@ func (*{{title $t}}Type) SQL(_ qb.SQLBuilder) (q string, _[]interface{}) {
 
 // {{title $t}} returns a new {{title $t}}Type
 func {{title $t}}() *{{title $t}}Type {
-	return &{{title $t}}Type([]string{
-		{{- join $enu.Values ", " -}}
+	return &{{title $t}}Type([]string{ {{range $e, $v := $enu.Values}}{{if $e}},{{end}}
+		{{quote $v}}{{end}}
 	})
-	return &enu
 }
 {{end}}
 

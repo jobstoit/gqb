@@ -127,7 +127,9 @@ func main() {
 			// nolint: errcheck
 			file.WriteString(`// This file is a generated file by github.com/jobstoit/gqb. PLEASE DO NOT EDIT
 
-package ` + mdl.Pkg)
+package ` + mdl.Pkg + `
+
+import "git.ultraware.nl/NiseVoid/qb"`)
 			CreateQbModel(mdl, file)
 			success[`model`] = `written to ` + *modelFlag
 		} else {

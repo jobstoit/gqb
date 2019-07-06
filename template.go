@@ -174,6 +174,7 @@ func {{title $t}}() *{{title $t}}Type {
 	}
 }
 {{- else if notnil $enu.Table}}
+
 // {{title $t}}Type represents the enum "{{print $t}}
 type {{title $t}}Type []string
 
@@ -185,9 +186,10 @@ func (*{{title $t}}Type) SQL(_ qb.SQLBuilder) (q string, _[]interface{}) {
 
 // {{title $t}} returns a new {{title $t}}Type
 func {{title $t}}() *{{title $t}}Type {
-	return &{{title $t}}Type([]string{ {{range $e, $v := $enu.Values}}{{if $e}},{{end}}
-		{{quote $v}}{{end}}
+	enu := {{title $t}}Type([]string{ {{range $enu.Values}}
+		{{quote .}},{{end}}
 	})
+	return &enu
 }
 {{end}}
 

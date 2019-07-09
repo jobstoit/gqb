@@ -13,9 +13,11 @@ require (
 	github.com/coreos/go-systemd v0.0.0-20190618135430-ff7011eec365 // indirect
 	github.com/cosiner/argv v0.0.1 // indirect
 	github.com/davidrjenni/reftools v0.0.0-20190411195930-981bbac422f8 // indirect
+	github.com/denisenkom/go-mssqldb v0.0.0-20190707035753-2be1aa521ff4
 	github.com/fatih/gomodifytags v0.0.0-20190517204355-df91c5bc7551 // indirect
 	github.com/fatih/motion v0.0.0-20190527122956-41470362fad4 // indirect
 	github.com/go-delve/delve v1.2.0 // indirect
+	github.com/go-sql-driver/mysql v1.4.1
 	github.com/golang/mock v1.3.1 // indirect
 	github.com/google/pprof v0.0.0-20190515194954-54271f7e092f // indirect
 	github.com/google/shlex v0.0.0-20181106134648-c34317bd91bf // indirect
@@ -29,6 +31,7 @@ require (
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/koron/iferr v0.0.0-20180615142939-bb332a3b1d91 // indirect
 	github.com/kr/pty v1.1.5 // indirect
+	github.com/lib/pq v1.1.1
 	github.com/magiconair/properties v1.8.1 // indirect
 	github.com/mattn/go-colorable v0.1.2 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect

@@ -67,8 +67,8 @@ import (
 var (
 	migrateFlag = flag.String(`migrate`, ``, `Specifies the output for the SQL migration`)
 	dbFlag      = flag.Bool(`db`, false, `Directly inserts the configured structur into the database`)
-	dvrFlag     = flag.String(`dvr`, `postgres`, `Sets the driver for the db flag. (postgres by default)`)
-	csFlag      = flag.String(`cs`, ``, `Sets the connection string for the db flag`)
+	dvrFlag     = flag.String(`dvr`, os.Getenv(`DB_DRIVER`), `Sets the driver for the db flag. (postgres by default)`)
+	csFlag      = flag.String(`cs`, os.Getenv(`DB_CONNECTION_STRING`), `Sets the connection string for the db flag`)
 	modelFlag   = flag.String(`model`, ``, `Sets the output for the Nisevoid/qb models`)
 	pkgFlag     = flag.String(`pkg`, ``, `Used by the model flag, sets the package name of the model file(s)`)
 )
@@ -80,13 +80,10 @@ func init() {
 		flag.Parse()
 	}
 
-	cFile := flag.Arg(0)
-	if cFile == `` {
-		return
-	}
-
-	if bitz, err := ioutil.ReadFile(cFile); err == nil {
+	if bitz, err := ioutil.ReadFile(flag.Arg(0)); err != nil {
 		mdl = ReadConfig(bitz)
+	} else {
+		return
 	}
 
 	if *dvrFlag != `` {
@@ -94,26 +91,16 @@ func init() {
 	}
 
 	if mdl.Driver == `` {
-		if en := os.Getenv(`DB_DRIVER`); en != `` {
-			mdl.Driver = en
-		} else {
-			mdl.Driver = `postgres`
-		}
+		mdl.Driver = `postgres`
 	}
 
 	if *pkgFlag != `` {
 		mdl.Pkg = *pkgFlag
 	}
 
-	if mdl.Driver == `` {
-		mdl.Driver = `model`
+	if mdl.Pkg == `` {
+		mdl.Pkg = `model`
 	}
-
-	if *csFlag == `` {
-		envCS := os.Getenv(`DB_CONNECTION_STRING`)
-		csFlag = &envCS
-	}
-
 }
 
 func main() {

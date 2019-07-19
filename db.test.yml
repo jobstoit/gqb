@@ -12,7 +12,7 @@ tables:
     password: varchar
     first_name: varchar(50)
     last_name: varchar(80)
-    role: role
+    role: user_role
 
   post:
     id: int, primary
@@ -34,7 +34,7 @@ tables:
     media_id: media.id, constraint(index;not null)
 
 enums:
-  role:
+  user_role:
   - ADMIN
   - AUTHOR
   - READER

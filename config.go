@@ -71,12 +71,12 @@ func ReadConfig(data []byte) (m Model) {
 	return
 }
 
-var typeDataReg = regexp.MustCompile(`^[\w\.]+(\(\d{0,3}\))?`)
+var typeDataReg = regexp.MustCompile(`^[\w\_\.]+(\(\d{0,3}\))?`)
 
 func getRawType(context string) (rawType string, size int) {
 	typeData := typeDataReg.FindStringSubmatch(context)
 	if len(typeData) == 0 {
-		panic(`type not defined`)
+		panic(`type not defined: ` + context)
 	}
 
 	rawType = typeData[0]

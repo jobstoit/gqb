@@ -80,7 +80,7 @@ func init() {
 		flag.Parse()
 	}
 
-	if bitz, err := ioutil.ReadFile(flag.Arg(0)); err != nil {
+	if bitz, err := ioutil.ReadFile(flag.Arg(0)); err == nil {
 		mdl = ReadConfig(bitz)
 	} else {
 		return

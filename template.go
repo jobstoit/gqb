@@ -23,9 +23,7 @@ func CreateQbModel(m Model, wr io.Writer) {
 			`qbtype`: qbType,
 		}).
 		Parse(queryTempl + tableTempl))
-	if err := temp.Execute(wr, m); err != nil {
-		panic(err)
-	}
+	catch(temp.Execute(wr, m), `Unable to execute the Model template`)
 }
 
 // CreateMigration creates the migration template
@@ -35,9 +33,7 @@ func CreateMigration(m Model, wr io.Writer) {
 			`notnil`: notNil,
 		}).
 		Parse(queryTempl + migrationTempl))
-	if err := temp.Execute(wr, m); err != nil {
-		panic(err)
-	}
+	catch(temp.Execute(wr, m), `Unable to execute migration template`)
 }
 
 func title(s interface{}) (t string) {

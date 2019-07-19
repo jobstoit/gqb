@@ -110,7 +110,7 @@ func (x Model) GetType(c *Column) {
 			return
 		}
 	}
-	panic(`Type not found`)
+	fatal(`Type not found: %s\n`, c.rawType)
 }
 
 // getPrimativeType returns the primative type matching the

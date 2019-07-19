@@ -3,6 +3,7 @@
 package main
 
 import (
+	"log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -21,7 +22,7 @@ type config struct {
 // ReadConfig reads the data of the given yaml file into a model
 func ReadConfig(data []byte) (m Model) {
 	c := config{}
-	catch(yaml.Unmarshal(data, &c))
+	catch(yaml.Unmarshal(data, &c), `Yaml configuration is unreadable`)
 
 	removeSpacesReg := regexp.MustCompile(`\s`)
 	defaultReg := regexp.MustCompile(`,\s?default\((\w+)\)`)
@@ -76,7 +77,7 @@ var typeDataReg = regexp.MustCompile(`^[\w\_\.]+(\(\d{0,3}\))?`)
 func getRawType(context string) (rawType string, size int) {
 	typeData := typeDataReg.FindStringSubmatch(context)
 	if len(typeData) == 0 {
-		panic(`type not defined: ` + context)
+		log.Fatal(`Type not defined: ` + context)
 	}
 
 	rawType = typeData[0]
@@ -84,7 +85,7 @@ func getRawType(context string) (rawType string, size int) {
 		ssize := strings.Trim(typeData[1], `(`)
 		ssize = strings.Trim(ssize, `)`)
 		isize, err := strconv.Atoi(ssize)
-		catch(err)
+		catch(err, `Datatype in an invalid format: %s\n`, rawType)
 
 		size = isize
 		rawType = strings.Trim(rawType, typeData[1])

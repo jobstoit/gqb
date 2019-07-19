@@ -9,7 +9,10 @@ import (
 
 func TestReadConfig(t *testing.T) {
 	data, err := ioutil.ReadFile(`./db.test.yml`)
-	catch(err)
+	if err != nil {
+		t.Error(`cant read test configuration file`)
+		t.Fail()
+	}
 
 	m := ReadConfig(data)
 	expectInt(t, 5, len(m.Tables))

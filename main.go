@@ -116,7 +116,7 @@ func main() {
 			defer file.Close() // nolint: errcheck
 
 			// nolint: errcheck
-			file.WriteString(`// This file is a generated file by github.com/jobstoit/gqb. PLEASE DO NOT EDIT
+			file.WriteString(`// This file is a generated file by github.com/jobstoit/gqb. PLEASE DO NOT EDIT.
 
 package ` + mdl.Pkg + `
 

@@ -3,6 +3,8 @@
 // gqb is made for generating a query builder.
 //
 // The gqb command takes the path to the db.yml as argument.
+// So for example:
+//   gqb -model ./models/qb.mdl.go db.yml
 //
 // The command takes the following flags as arguments.
 //   -migrate 		Specifies the output for a generated sql migration
@@ -22,25 +24,30 @@
 //                      model file(s)
 //
 // Configuration yaml example.
-//   pkg: models                     # optional, default model
-//   driver: postgres                # optional, default postgres
+//   pkg: models                              # optional, default model
+//   driver: postgres                         # optional, default postgres
 //   tables:
-//     user:
+//     users:
 //       id: int, primary
 //       email: varchar, unique
 //       password: varhcar
 //       fist_name: varchar(50)
 //       last_name: varchar(100)
-//       role: role
+//       role: role                           # foreign key (enum)
 //
-//     post:
+//     posts:
 //       id: int, primary
-//       created_by: user.id         # foreign key
-//       created_at: datetime
-//       updated_at: datetime
+//       created_by: users.id                 # foreign key
+//       created_at: datetime, default(NOW)
+//       updated_at: datetime, default(NOW)
 //       title: varchar
 //       subtitle: varchar, nullable
 //       context: text
+//
+//     post_images:
+//       id: int, primary
+//       posts_id: posts(id)                  # another foreign key
+//       img_url: varchar
 //
 //   enums:
 //     role:

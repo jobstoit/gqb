@@ -4,7 +4,7 @@
 [![coverage report](https://gitlab.com/jobstoit/gsql/badges/master/coverage.svg)](https://gitlab.com/jobstoit/gsql/commits/master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/jobstoit/gqb)](https://goreportcard.com/report/github.com/jobstoit/gqb)
 
-The generated Query Builder creates a query builder and if needed a migration using a yaml configuration.
+The generated Query Builder creates a [query builder](https://github.com/ultraware/qb) and if needed a migration using a yaml configuration.
 
 The gqb takes takes the following flags as arguments:
 ```
@@ -26,35 +26,39 @@ The gqb takes takes the following flags as arguments:
 ## Configuration
 Create a configuration file based on the following yaml structure (this is an example configuration):
 ```yaml
-pkg: models                         # optional
-driver: mysql                       # optional (default postgres)
+pkg: models                             # optional
+driver: mysql                           # optional (default postgres)
 tables:
-  user:
+  users:
     id: int, primary
     email: varchar, unique
     password: varchar
     first_name: varchar(50)
     last_name: varchar(100)
-    role: role
-  post:
+    role: role                          # foreign key (enum)
+
+  posts:
     id: int, primary
-    created_by: user.id             # foreign key
-    created_at: datetime
-    updated_at: datetime
+    created_by: users.id                # foreign key
+    created_at: datetime, default(NOW)
+    updated_at: datetime, default(NOW)
     title: varchar
     subtitle: varchar, nullable
     context: text
+
   images:
     id: int, primary
     title: varchar
-    created_at: datetime,
-    updated_at: datetime
+    created_at: datetime, default(NOW)
+    updated_at: datetime, default(NOW)
     path: varchar
+
   post_images:
     id: int, primary
-    image_id: image.id              # foreign key
-    post_id: post.id                # foreign key
+    image_id: images.id                 # foreign key
+    post_id: posts(id)                  # another foreign key
     description: varchar
+
 enums:
   role:
   - ADMIN
@@ -65,7 +69,7 @@ enums:
 # Installation
 Install this using go get:
 ```bash
-$ go get -u gitlab.com/jobstoit/gqb
+$ go get -u github.com/jobstoit/gqb
 ```
 
 Then start using it, try:

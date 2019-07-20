@@ -3,7 +3,6 @@
 package main
 
 import (
-	"flag"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -13,16 +12,18 @@ func initMainTest() {
 	if bitz, err := ioutil.ReadFile(`./db.test.yml`); err == nil {
 		mdl = ReadConfig(bitz)
 	} else {
-		os.Exit(1)
+		panic(`unable to read the db.test.yml file`)
 	}
 
-	flag.Set(`dvr`, `postgres`)
-	flag.Set(`pkg`, `main`)
-	flag.Set(`model`, `out/qb.mdl.go`)
-	flag.Set(`migration`, `out/migration.go`)
-	if !flag.Parsed() {
-		flag.Parse()
-	}
+	dvr := `postgres`
+	pkg := `main`
+	model := `out/test.mdl.go`
+	migration := `out/migration.sql`
+
+	dvrFlag = &dvr
+	pkgFlag = &pkg
+	modelFlag = &model
+	migrateFlag = &migration
 }
 
 func TestMain(m *testing.M) {

@@ -7,7 +7,7 @@ variables:
   PRJ: /prj
 
 before_script:
-- mkdir $PRJ && mv * $PRJ && cd $PRJ
+- mkdir $PRJ $PRJ/out && mv * $PRJ && cd $PRJ
 - go mod download
 
 linter:

@@ -76,3 +76,11 @@ Then start using it, try:
 ```bash
 $ gqb
 ```
+
+# Todo
+- [x] Create configuration reader
+- [x] Create SQL generator
+- [x] Create NiseVoid/qb generator
+- [ ] Create a database differential inspector (config against the current state of the database)
+- [ ] Create a diffential SQL generator & executor
+- [ ] Create a seeder & seeder configuration

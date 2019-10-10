@@ -80,7 +80,7 @@ type Enum struct {
 
 // Type is the DataType implementation
 func (x Enum) Type() string {
-	return getPrimitiveType(`string`).Type()
+	return getPrimitiveType(`varchar`).Type()
 }
 
 // PrimitiveType is a primative database type
@@ -126,14 +126,14 @@ func getPrimitiveType(i string) DataType {
 	case `real`:
 		return getPrimitiveType(`float`)
 
-	case `time`, `timestamp`:
-		return getPrimitiveType(`datetime`)
+	case `time`, `datetime`:
+		return getPrimitiveType(`timestamp`)
 
 	case `bool`:
 		return getPrimitiveType(`boolean`)
 
 	case `varchar`, `text`, `int`, `tinyint`, `smallint`,
-		`bigint`, `double`, `float`, `date`, `datetime`, `boolean`:
+		`bigint`, `double`, `float`, `date`, `timestamp`, `boolean`:
 		return PrimitiveType(i)
 	default:
 		return nil

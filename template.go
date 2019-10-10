@@ -84,25 +84,23 @@ func qbType(x DataType) string {
 	}
 }
 
-var queryTempl = `{{define "tablequery"}}CREATE TABLE IF NOT EXISTS {{print (index . 0).Table}} { {{range $n, $col := .}}{{if $n}},{{end}}
+var queryTempl = `{{define "tablequery"}}CREATE TABLE IF NOT EXISTS {{print (index . 0).Table}} ({{range $n, $col := .}}{{if $n}},{{end}}
 	{{$col.Name -}}
 	{{- if notnil $col.DataType}} {{$col.DataType.Type}}{{end -}}
 	{{- if gt $col.Size 0}}({{$col.Size}}){{end -}}
-	{{- if $col.Primary}} PRIMARY{{end -}}
+	{{- if and (not $col.Nullable) (eq $col.Default "")}} NOT NULL{{end -}}
+	{{- if $col.Primary}} PRIMARY KEY{{end -}}
 	{{- if $col.Unique}} UNIQUE{{end -}}
-	{{- if $col.Nullable}} NULLABLE{{end -}}
-	{{- if not (eq $col.Default "")}} DEFAULT {{$col.Default}}{{end -}}
+	{{- if not (eq $col.Default "")}} DEFAULT '{{$col.Default}}'{{end -}}
 	{{- range $g, $c := $col.Constraints}}{{if $g}}, {{end}} ADD CONSTRAINT {{$c}}{{end -}}
 {{- end}}
-} {{- end}}
-{{define "enumquery"}}CREATE ENUM {{print .Table}} { {{range $n, $val := .Values}}{{if $n}},{{end}}
-	{{$val}}{{end}}
-} {{end}}`
+);{{- end}}
+{{define "enumquery"}}CREATE TYPE {{print .Table}} AS ENUM ({{range $n, $val := .Values}}{{if $n}},{{end}} {{$val}}{{end}} );{{end}}`
 
 var migrationTempl = `{{range $.Tables}}
 {{- $col := .Columns $.Types -}}
 {{- $enu := .Enum $.Types -}}
-// {{print .}}
+-- {{print .}}
 {{if gt (len $col) 0 }}{{template "tablequery" $col}}
 {{else if gt (len $enu.Values) 0}}{{template "enumquery" $enu}}
 {{- end}}

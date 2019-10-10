@@ -31,8 +31,8 @@ func TestReadConfig(t *testing.T) {
 					t.Error(`user_id does not have the proper foreign key`)
 				}
 			case `created_at`: // test primitive type ref
-				if col.DataType.Type() != `datetime` {
-					t.Error(`created_at doesnt refer to datetime`)
+				if col.DataType.Type() != `timestamp` {
+					t.Error(`created_at doesnt refer to timestamp`)
 				}
 			case `subtitle`:
 				if col.Nullable != true {

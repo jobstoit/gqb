@@ -43,20 +43,17 @@ func TestCreateMigration(t *testing.T) {
 	CreateMigration(testModel, buff)
 	res := buff.String()
 
-	if !strings.Contains(res, `CREATE TABLE IF NOT EXISTS user { 
-	id int PRIMARY,
-	name varchar(100),
-	last_name varchar(100),
-	bio text NULLABLE,
-	role varchar
-}`) {
+	if !strings.Contains(res, `CREATE TABLE IF NOT EXISTS user (
+	id int NOT NULL PRIMARY KEY,
+	name varchar(100) NOT NULL,
+	last_name varchar(100) NOT NULL,
+	bio text,
+	role varchar DEFAULT 'GENERAL'
+);`) {
 		t.Errorf("Error or wrong in table query generation:\n\n%s", res)
 	}
 
-	if !strings.Contains(res, `CREATE ENUM role { 
-	ADMIN,
-	GENERAL
-}`) {
+	if !strings.Contains(res, `CREATE TYPE role AS ENUM ( ADMIN, GENERAL );`) {
 		t.Errorf("Error or wrong in enum query generation:\n\n%s", res)
 	}
 }

@@ -40,6 +40,7 @@ var (
 				Table:   &testTableUser,
 				Name:    `role`,
 				rawType: `role`,
+				Default: `GENERAL`,
 			},
 			&Column{
 				Table:   &testTableImage,

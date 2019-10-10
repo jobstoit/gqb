@@ -82,35 +82,9 @@ var (
 
 var mdl Model
 
-func init() {
-	if !flag.Parsed() {
-		flag.Parse()
-	}
-
-	if bitz, err := ioutil.ReadFile(flag.Arg(0)); err == nil {
-		mdl = ReadConfig(bitz)
-	} else {
-		return
-	}
-
-	if *dvrFlag != `` {
-		mdl.Driver = *dvrFlag
-	}
-
-	if mdl.Driver == `` {
-		mdl.Driver = `postgres`
-	}
-
-	if *pkgFlag != `` {
-		mdl.Pkg = *pkgFlag
-	}
-
-	if mdl.Pkg == `` {
-		mdl.Pkg = `model`
-	}
-}
-
 func main() {
+	flags()
+
 	var errs []error
 	success := make(map[string]string)
 
@@ -169,5 +143,33 @@ import "git.ultraware.nl/NiseVoid/qb"`)
 
 	for _, err := range errs {
 		fmt.Println(err)
+	}
+}
+
+func flags() {
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+
+	if bitz, err := ioutil.ReadFile(flag.Arg(0)); err == nil {
+		mdl = ReadConfig(bitz)
+	} else {
+		return
+	}
+
+	if *dvrFlag != `` {
+		mdl.Driver = *dvrFlag
+	}
+
+	if mdl.Driver == `` {
+		mdl.Driver = `postgres`
+	}
+
+	if *pkgFlag != `` {
+		mdl.Pkg = *pkgFlag
+	}
+
+	if mdl.Pkg == `` {
+		mdl.Pkg = `model`
 	}
 }

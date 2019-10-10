@@ -13,10 +13,11 @@ import (
 
 // this config struct is for mapping the object to the nessasary state
 type config struct {
-	Driver string                       `yaml:"driver"`
-	Pkg    string                       `yaml:"pkg"`
-	Tables map[string]map[string]string `yaml:"tables,flow"`
-	Enums  map[string][]string          `yaml:"enums,flow"`
+	Driver  string                       `yaml:"driver"`
+	Pkg     string                       `yaml:"pkg"`
+	Tables  map[string]map[string]string `yaml:"tables,flow"`
+	Enums   map[string][]string          `yaml:"enums,flow"`
+	Seeders map[string][]string          `yaml:"seeds,flow"`
 }
 
 // ReadConfig reads the data of the given yaml file into a model

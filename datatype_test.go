@@ -9,7 +9,7 @@ func TestGetPrimativeType(t *testing.T) {
 	expectStr(t, `varchar`, getPrimitiveType(`char`).Type())
 	expectStr(t, `float`, getPrimitiveType(`real`).Type())
 	expectStr(t, `boolean`, getPrimitiveType(`bool`).Type())
-	expectStr(t, `datetime`, getPrimitiveType(`time`).Type())
+	expectStr(t, `timestamp`, getPrimitiveType(`time`).Type())
 	expectStr(t, `smallint`, getPrimitiveType(`smallint`).Type())
 }
 

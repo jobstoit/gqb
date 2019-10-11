@@ -1,7 +1,6 @@
 # gQB
 [![coverage](https://godoc.org/github.com/jobstoit/gqb?status.svg)](https://godoc.org/github.com/jobstoit/gqb)
-[![pipeline status](https://gitlab.com/jobstoit/gsql/badges/master/pipeline.svg)](https://gitlab.com/jobstoit/gsql/commits/master)
-[![coverage report](https://gitlab.com/jobstoit/gsql/badges/master/coverage.svg)](https://gitlab.com/jobstoit/gsql/commits/master)
+[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fjobstoit%2Fgqb%2Fbadge&style=flat)](https://actions-badge.atrox.dev/jobstoit/gqb/goto)
 [![Go Report Card](https://goreportcard.com/badge/github.com/jobstoit/gqb)](https://goreportcard.com/report/github.com/jobstoit/gqb)
 
 The generated Query Builder creates a [query builder](https://github.com/ultraware/qb) and if needed a migration using a yaml configuration.

@@ -1,6 +1,6 @@
-module gqb
+module github.com/jobstoit/gqb
 
-go 1.12
+go 1.13
 
 require (
 	cloud.google.com/go v0.40.0 // indirect

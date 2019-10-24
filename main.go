@@ -17,8 +17,11 @@
 //
 //   -cs                Sets the connection string for the db flag
 //
-//   -model             Writes the configuration to NiseVoid/qb model(s) takes
+//   -go_out            Writes the configuration to NiseVoid/qb model(s) takes
 //                      the output file(s) as argument
+//
+//   -cs_out            Writes te configuration to a dotnet core entityframeworkcore
+//                      models.
 //
 //   -pkg               Used by the model flag, sets the package name of the
 //                      model file(s)
@@ -58,15 +61,12 @@
 package main
 
 import (
-	"bytes"
-	"database/sql"
 	"flag"
-	"fmt"
-	"io/ioutil"
 	"os"
 
 	_ "github.com/denisenkom/go-mssqldb"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jobstoit/gqb/model"
 	_ "github.com/lib/pq"
 )
 
@@ -80,96 +80,20 @@ var (
 	pkgFlag     = flag.String(`pkg`, ``, `Used by the model flag, sets the package name of the model file(s)`)
 )
 
-var mdl Model
-
 func main() {
-	flags()
-
-	var errs []error
-	success := make(map[string]string)
-
-	if len(mdl.Tables) == 0 {
-		flag.PrintDefaults()
-		return
+	f, err := os.OpenFile(flag.Arg(0))
+	if err != nil {
+		os.Exit(1)
 	}
-	if *modelFlag != `` {
-		if file, err := os.Create(*modelFlag); err == nil {
-			defer file.Close() // nolint: errcheck
+	mdl := model.FromFile(f)
+	if err := f.Close(); err != nil {
+		os.Exit(1)
+	}
 
-			// nolint: errcheck
-			file.WriteString(`// This file is a generated file by github.com/jobstoit/gqb. PLEASE DO NOT EDIT.
-
-package ` + mdl.Pkg + `
-
-import "git.ultraware.nl/NiseVoid/qb"`)
-			CreateQbModel(mdl, file)
-			success[`model`] = `written to ` + *modelFlag
-		} else {
-			errs = append(errs, err)
+	if modelFlag != `` {
+		f, err := os.Create(modelFlag)
+		if err == nil {
+			template.CreateQbModel(*mdl, f)
 		}
-	}
-
-	if *migrateFlag != `` {
-		if file, err := os.Create(*migrateFlag); err == nil {
-			defer file.Close() // nolint: errcheck
-			CreateMigration(mdl, file)
-			success[`migration`] = `written to ` + *migrateFlag
-		} else {
-			errs = append(errs, err)
-		}
-	}
-
-	if *dbFlag {
-		buff := new(bytes.Buffer)
-		CreateMigration(mdl, buff)
-
-		if db, err := sql.Open(mdl.Driver, *csFlag); err == nil {
-			defer db.Close() // nolint: errcheck
-			if _, err = db.Exec(buff.String()); err != nil {
-				errs = append(errs, err)
-			}
-			success[`db`] = `succesfully executed the migration in the database`
-		} else {
-			errs = append(errs, err)
-		}
-	}
-
-	if len(success) > 0 {
-		fmt.Printf("\n        \x1b[34m0000      \n     \x1b[34m0000 \x1b[32m000      \x1b[34m##   ##  ##      ##       #####     #####   ##     ##   #####   #####    ##### \n   \x1b[34m0000    \x1b[32m000     \x1b[34m##   ##  ##      ####     ##  ##   ##   ##  ##     ##  ##   ##  ##  ##  ##   ##\n  \x1b[34m0000      \x1b[32m000    \x1b[34m##   ##  ##      ##       #####    #######  ##  #  ##  #######  #####   #######\n \x1b[34m0\x1b[36m000       \x1b[32m0000   \x1b[34m##   ##  ##      ##   ##  ## ##    ##   ##  ##  #  ##  ##   ##  ## ##   ##\n  \x1b[36m000000000 \x1b[32m0000    \x1b[34m######  ######   #####   ##  ##   ##   ##   ### ###   ##   ##  ##  ##   #####\n     \x1b[36m000000000\n\n                               \x1b[32m%s\x1b[0m\n", `succesfully generated`)
-		for key, val := range success {
-			fmt.Printf("%s: %s\n", key, val)
-		}
-	}
-
-	for _, err := range errs {
-		fmt.Println(err)
-	}
-}
-
-func flags() {
-	if !flag.Parsed() {
-		flag.Parse()
-	}
-
-	if bitz, err := ioutil.ReadFile(flag.Arg(0)); err == nil {
-		mdl = ReadConfig(bitz)
-	} else {
-		return
-	}
-
-	if *dvrFlag != `` {
-		mdl.Driver = *dvrFlag
-	}
-
-	if mdl.Driver == `` {
-		mdl.Driver = `postgres`
-	}
-
-	if *pkgFlag != `` {
-		mdl.Pkg = *pkgFlag
-	}
-
-	if mdl.Pkg == `` {
-		mdl.Pkg = `model`
 	}
 }

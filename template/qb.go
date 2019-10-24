@@ -1,112 +1,55 @@
 // Copyright 2019 Job Stoit. All rights reserved.
 
-package main
+package template
 
 import (
-	"fmt"
 	"io"
 	"strings"
-	"text/template"
+	templ "text/template"
+
+	"github.com/jobstoit/gqb/model"
 )
 
-// This file contains the templates for the code generation
-// These are the template for each table
-
-// CreateQbModel creates the models template
-func CreateQbModel(m Model, wr io.Writer) {
-	temp := template.Must(template.New(`qb-model`).
-		Funcs(template.FuncMap{
+// CreateQBModel creates the NiseVoid qb/model
+func CreateQBModel(m model.Context, wr io.Writer) {
+	err := templ.Must(templ.New(`NiseVoid/qb model`).
+		Funcs(templ.FuncMap{
 			`title`:  title,
 			`quote`:  quote,
 			`join`:   strings.Join,
 			`notnil`: notNil,
-			`qbtype`: qbType,
-		}).
-		Parse(queryTempl + tableTempl))
-	catch(temp.Execute(wr, m), `Unable to execute the Model template`)
-}
+			`qbType`: qbType,
+		}).parse(queryTempl+qbTempl)).
+		Execute(wr, m)
 
-// CreateMigration creates the migration template
-func CreateMigration(m Model, wr io.Writer) {
-	temp := template.Must(template.New(`migration`).
-		Funcs(template.FuncMap{
-			`notnil`: notNil,
-		}).
-		Parse(queryTempl + migrationTempl))
-	catch(temp.Execute(wr, m), `Unable to execute migration template`)
-}
-
-func title(s interface{}) (t string) {
-	for _, part := range strings.Split(fmt.Sprint(s), `_`) {
-		switch part {
-		case `id`, `Id`, `sql`, `Sql`, `url`, `Url`:
-			t += strings.ToUpper(part)
-		default:
-			t += strings.Title(part)
-		}
+	if err != nil {
+		panic(err)
 	}
-	return
 }
 
-func quote(i ...interface{}) (s string) {
-	s += "`"
-	if len(i) == 0 {
-		return
-	}
-	for e, it := range i {
-		s += fmt.Sprint(it)
-		if e != len(i)-1 {
-			s += ` `
-		}
-	}
-	s += "`"
-	return
-}
-
-func notNil(x interface{}) bool {
-	return x != nil
-}
-
-func qbType(x DataType) string {
+func qbType(x model.DataType) string {
 	switch x.Type() {
 	case `varchar`, `text`:
 		return `qb.String`
+
 	case `int`, `tinyint`, `smallint`, `bigint`:
 		return `qb.Int`
+
 	case `double`, `float`:
 		return `qb.Float`
+
 	case `date`, `datetime`:
 		return `qb.Date`
+
 	case `boolean`:
 		return `qb.Bool`
+
 	default:
 		return `qb.Int`
 	}
 }
 
-var queryTempl = `{{define "tablequery"}}CREATE TABLE IF NOT EXISTS {{print (index . 0).Table}} ({{range $n, $col := .}}{{if $n}},{{end}}
-	{{$col.Name -}}
-	{{- if notnil $col.DataType}} {{$col.DataType.Type}}{{end -}}
-	{{- if gt $col.Size 0}}({{$col.Size}}){{end -}}
-	{{- if and (not $col.Nullable) (eq $col.Default "")}} NOT NULL{{end -}}
-	{{- if $col.Primary}} PRIMARY KEY{{end -}}
-	{{- if $col.Unique}} UNIQUE{{end -}}
-	{{- if not (eq $col.Default "")}} DEFAULT '{{$col.Default}}'{{end -}}
-	{{- range $g, $c := $col.Constraints}}{{if $g}}, {{end}} ADD CONSTRAINT {{$c}}{{end -}}
-{{- end}}
-);{{- end}}
-{{define "enumquery"}}CREATE TYPE {{print .Table}} AS ENUM ({{range $n, $val := .Values}}{{if $n}},{{end}} {{$val}}{{end}} );{{end}}`
-
-var migrationTempl = `{{range $.Tables}}
-{{- $col := .Columns $.Types -}}
-{{- $enu := .Enum $.Types -}}
--- {{print .}}
-{{if gt (len $col) 0 }}{{template "tablequery" $col}}
-{{else if gt (len $enu.Values) 0}}{{template "enumquery" $enu}}
-{{- end}}
-{{end}}`
-
-var tableTempl = `
+var qbTempl = `
 {{range $e, $t := $.Tables -}}
 {{- $cols := $t.Columns $.Types -}}
 {{- $enu := $t.Enum $.Types -}}

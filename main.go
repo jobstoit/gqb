@@ -7,7 +7,7 @@
 //   gqb -model ./models/qb.mdl.go db.yml
 //
 // The command takes the following flags as arguments.
-//   -migrate 		Specifies the output for a generated sql migration
+//   -migrate           Specifies the output for a generated sql migration
 //
 //   -db                Directly inserts the configured structure into the database
 //                      using the DB_DRIVER and DB_CONNECTION_STRING enviroment
@@ -54,6 +54,14 @@
 //     - GENERAL_USER
 //     - MODERATOR
 //     - ADMIN
+//
+// The configuration has the following type constraints:
+//   primary            sets the type as primary key in the table
+//   unique             sets a UNIQUE constraint on the type
+//   nullable           undoes the default NOT NULL constraint on a type
+//   default(%)         set the default constraint and uses the parameter to set
+//                      a default value
+//   constraint(%)      sets one or more constraints, constraints can be seperated by ;
 //
 package main
 

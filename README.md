@@ -65,6 +65,15 @@ enums:
   - GENERAL_USER
 ```
 
+The configuration has the following type constraints:
+```
+primary			sets the type as primary key in the table
+unique			set a UNIQUE constraint on the type
+nullable		undoes the default NOT NULL constraint on a type
+default(%)		sets the default constraint and uses a parameter to set a default value
+constraint(%)		sets one or more constraints, constraints can be seperated using ;
+```
+
 # Installation
 Install this using go get:
 ```bash

@@ -3,6 +3,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"strings"
@@ -21,6 +22,11 @@ func CreateQbModel(m Model, wr io.Writer) {
 			`join`:   strings.Join,
 			`notnil`: notNil,
 			`qbtype`: qbType,
+			`migrate`: func() string {
+				buf := new(bytes.Buffer)
+				CreateMigration(m, buf)
+				return buf.String()
+			},
 		}).
 		Parse(queryTempl + tableTempl))
 	catch(temp.Execute(wr, m), `Unable to execute the Model template`)
@@ -191,4 +197,22 @@ func {{title $t}}() *{{title $t}}Type {
 }
 {{end}}
 
-{{end}}`
+{{end}}
+
+// Open creates a connection with the database and
+// inserst the migration if not exists and
+// returns the qbdb database
+func Open(driver, connectionString string) (*qbdb.DB, error) {
+	db, err := sql.Open(driver, connectionString)
+	if err != nil {
+		return nil, err
+	}
+
+	q := {{ quote migrate }}
+
+	if _, err := db.Exec(q); err != nil {
+		return nil, fmt.Errorf("Migration failed: %v", err)
+	}
+	
+	return autoqb.New(db), nil
+}`

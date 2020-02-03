@@ -109,7 +109,14 @@ func main() {
 
 package ` + mdl.Pkg + `
 
-import "git.ultraware.nl/NiseVoid/qb"`)
+import (
+	"database/sql"
+	"fmt"
+
+	"git.ultraware.nl/NiseVoid/qb"
+	"git.ultraware.nl/NiseVoid/qb/driver/autoqb"
+	"git.ultraware.nl/NiseVoid/qb/qbdb"
+)`)
 			CreateQbModel(mdl, file)
 			success[`model`] = `written to ` + *modelFlag
 		} else {

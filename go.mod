@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	cloud.google.com/go v0.40.0 // indirect
+	git.ultraware.nl/NiseVoid/qb v2.2.0+incompatible
 	github.com/alecthomas/gometalinter v3.0.0+incompatible // indirect
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d // indirect
 	github.com/denisenkom/go-mssqldb v0.0.0-20190707035753-2be1aa521ff4

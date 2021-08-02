@@ -1,6 +1,6 @@
 // Copyright 2019 Job Stoit. All rights reserved.
 
-package main
+package config
 
 import "testing"
 
@@ -34,8 +34,6 @@ func TestTable(t *testing.T) {
 		switch i.String() {
 		case `user.id`, `user.name`, `user.role`:
 			amm++
-		default:
-			break
 		}
 	}
 	expectInt(t, 3, amm)

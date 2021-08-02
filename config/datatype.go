@@ -1,6 +1,6 @@
 // Copyright 2019 Job Stoit. All rights reserved.
 
-package main
+package config
 
 // DataType is a models data structure
 type DataType interface {

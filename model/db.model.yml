@@ -1,0 +1,17 @@
+pkg: model
+tables:
+  users:
+    id: int primary
+    name: varchar(100)
+    last_name: varchar(100)
+    bio: text nullable
+    role: roles default(GENERAL)
+
+  images:
+    id: int primary
+    user_id: users.id
+
+enums:
+  roles:
+  - ADMIN
+  - GENERAL

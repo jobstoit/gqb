@@ -1,9 +1,11 @@
 // Copyright 2019 Job Stoit. All rights reserved.
 
-package main
+package config
 
 import (
+	"fmt"
 	"log"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -21,13 +23,12 @@ type config struct {
 }
 
 // ReadConfig reads the data of the given yaml file into a model
-func ReadConfig(data []byte) (m Model) {
+func Read(data []byte) (m Model) {
 	c := config{}
 	catch(yaml.Unmarshal(data, &c), `Yaml configuration is unreadable`)
 
-	removeSpacesReg := regexp.MustCompile(`\s`)
-	defaultReg := regexp.MustCompile(`,\s?default\((\w+)\)`)
-	constrainReg := regexp.MustCompile(`,\s?constraint\(([\w,\s;]+)\)`)
+	defaultReg := regexp.MustCompile(`default\((\w+)\)`)
+	constrainReg := regexp.MustCompile(`constraint\(([\w,\s;]+)\)`)
 
 	m.Pkg = c.Pkg
 	m.Driver = c.Driver
@@ -47,11 +48,10 @@ func ReadConfig(data []byte) (m Model) {
 				c.Constraints = strings.Split(match[1], `;`)
 			}
 
-			context = removeSpacesReg.ReplaceAllString(context, ``)
 			c.rawType, c.Size = getRawType(context)
-			c.Primary = strings.Contains(context, `,primary`)
-			c.Nullable = strings.Contains(context, `,nullable`)
-			c.Unique = strings.Contains(context, `,unique`)
+			c.Primary = strings.Contains(context, `primary`)
+			c.Nullable = strings.Contains(context, `nullable`)
+			c.Unique = strings.Contains(context, `unique`)
 
 			m.Types = append(m.Types, &c)
 		}
@@ -73,15 +73,17 @@ func ReadConfig(data []byte) (m Model) {
 	return
 }
 
-var typeDataReg = regexp.MustCompile(`^[\w\_\.]+(\(\d{0,3}\))?`)
+var typeDataReg = regexp.MustCompile(`^\s?[\w\_\.]+(\(\s?\d{0,3}\s?\))?`)
 
 func getRawType(context string) (rawType string, size int) {
+
 	typeData := typeDataReg.FindStringSubmatch(context)
 	if len(typeData) == 0 {
 		log.Fatal(`Type not defined: ` + context)
 	}
+	removeSpacesReg := regexp.MustCompile(`\s`)
 
-	rawType = typeData[0]
+	rawType = removeSpacesReg.ReplaceAllString(typeData[0], ``)
 	if len(typeData) >= 2 && typeData[1] != `` {
 		ssize := strings.Trim(typeData[1], `(`)
 		ssize = strings.Trim(ssize, `)`)
@@ -92,4 +94,21 @@ func getRawType(context string) (rawType string, size int) {
 		rawType = strings.Trim(rawType, typeData[1])
 	}
 	return
+}
+
+// Catch is used to panic a function/statement when errors occur
+func catch(err error, msg string, args ...interface{}) {
+	if err != nil {
+		fatal(msg, args...)
+	}
+}
+
+// Fatal closes the program with a message
+func fatal(msg string, args ...interface{}) {
+	if !strings.HasPrefix(msg, "\n") {
+		msg += "\n"
+	}
+
+	fmt.Printf(msg, args...)
+	os.Exit(1)
 }

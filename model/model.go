@@ -1,20 +1,23 @@
 // Copyright 2019 Job Stoit. All rights reserved.
 
-package main
+package model
 
 import (
 	"bytes"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 	"text/template"
+
+	"github.com/jobstoit/gqb/config"
 )
 
 // This file contains the templates for the code generation
 // These are the template for each table
 
 // CreateQbModel creates the models template
-func CreateQbModel(m Model, wr io.Writer) {
+func CreateQbModel(m config.Model, wr io.Writer) {
 	temp := template.Must(template.New(`qb-model`).
 		Funcs(template.FuncMap{
 			`title`:  title,
@@ -33,7 +36,7 @@ func CreateQbModel(m Model, wr io.Writer) {
 }
 
 // CreateMigration creates the migration template
-func CreateMigration(m Model, wr io.Writer) {
+func CreateMigration(m config.Model, wr io.Writer) {
 	temp := template.Must(template.New(`migration`).
 		Funcs(template.FuncMap{
 			`notnil`: notNil,
@@ -73,7 +76,7 @@ func notNil(x interface{}) bool {
 	return x != nil
 }
 
-func qbType(x DataType) string {
+func qbType(x config.DataType) string {
 	switch x.Type() {
 	case `varchar`, `text`:
 		return `qb.String`
@@ -216,3 +219,20 @@ func Open(driver, connectionString string) (*qbdb.DB, error) {
 	
 	return autoqb.New(db), nil
 }`
+
+// Catch is used to panic a function/statement when errors occur
+func catch(err error, msg string, args ...interface{}) {
+	if err != nil {
+		fatal(msg, args...)
+	}
+}
+
+// Fatal closes the program with a message
+func fatal(msg string, args ...interface{}) {
+	if !strings.HasPrefix(msg, "\n") {
+		msg += "\n"
+	}
+
+	fmt.Printf(msg, args...)
+	os.Exit(1)
+}

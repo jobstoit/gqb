@@ -1,20 +1,17 @@
 // Copyright 2019 Job Stoit. All rights reserved.
 
-package main
+package config
 
 import (
-	"io/ioutil"
+	_ "embed"
 	"testing"
 )
 
-func TestReadConfig(t *testing.T) {
-	data, err := ioutil.ReadFile(`./db.test.yml`)
-	if err != nil {
-		t.Error(`cant read test configuration file`)
-		t.Fail()
-	}
+//go:embed db.test.yml
+var testConfig []byte
 
-	m := ReadConfig(data)
+func TestRead(t *testing.T) {
+	m := Read(testConfig)
 	expectInt(t, 5, len(m.Tables))
 
 	for _, typ := range m.Types {

@@ -1,6 +1,4 @@
-// Copyright 2019 Job Stoit. All rights reserved.
-
-package main
+package config
 
 import "testing"
 

@@ -1,0 +1,41 @@
+# Copyright 2019 Job Stoit. All rights reserved.
+
+# This is a test instance of a database for testing the generation
+# of gqb
+
+driver: postgres
+pkg: model
+tables:
+  user:
+    id: int primary
+    email: varchar(100) unique
+    password: varchar
+    first_name: varchar(50)
+    last_name: varchar(80)
+    role: user_role
+
+  post:
+    id: int primary
+    created_by: user.id
+    created_at: datetime
+    updated_at: datetime
+    title: varchar default(new_post)
+    subtitle: varchar nullable
+    context: text
+
+  media:
+    id: int primary
+    name: varchar
+    path: varchar
+
+  post_media:
+    id: int primary
+    post_id: post.id constraint(index;not null)
+    media_id: media.id constraint(index;not null)
+
+enums:
+  user_role:
+  - ADMIN
+  - AUTHOR
+  - READER
+

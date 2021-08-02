@@ -6,11 +6,13 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
+
+	"github.com/jobstoit/gqb/config"
 )
 
 func initMainTest() {
 	if bitz, err := ioutil.ReadFile(`./db.test.yml`); err == nil {
-		mdl = ReadConfig(bitz)
+		mdl = config.Read(bitz)
 	} else {
 		panic(`unable to read the db.test.yml file`)
 	}

@@ -75,6 +75,8 @@ import (
 
 	_ "github.com/denisenkom/go-mssqldb"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jobstoit/gqb/config"
+	"github.com/jobstoit/gqb/model"
 	_ "github.com/lib/pq"
 )
 
@@ -88,7 +90,7 @@ var (
 	pkgFlag     = flag.String(`pkg`, ``, `Used by the model flag, sets the package name of the model file(s)`)
 )
 
-var mdl Model
+var mdl config.Model
 
 func main() {
 	flags()
@@ -117,7 +119,7 @@ import (
 	"git.ultraware.nl/NiseVoid/qb/driver/autoqb"
 	"git.ultraware.nl/NiseVoid/qb/qbdb"
 )`)
-			CreateQbModel(mdl, file)
+			model.CreateQbModel(mdl, file)
 			success[`model`] = `written to ` + *modelFlag
 		} else {
 			errs = append(errs, err)
@@ -127,7 +129,7 @@ import (
 	if *migrateFlag != `` {
 		if file, err := os.Create(*migrateFlag); err == nil {
 			defer file.Close() // nolint: errcheck
-			CreateMigration(mdl, file)
+			model.CreateMigration(mdl, file)
 			success[`migration`] = `written to ` + *migrateFlag
 		} else {
 			errs = append(errs, err)
@@ -136,7 +138,7 @@ import (
 
 	if *dbFlag {
 		buff := new(bytes.Buffer)
-		CreateMigration(mdl, buff)
+		model.CreateMigration(mdl, buff)
 
 		if db, err := sql.Open(mdl.Driver, *csFlag); err == nil {
 			defer db.Close() // nolint: errcheck
@@ -167,7 +169,7 @@ func flags() {
 	}
 
 	if bitz, err := ioutil.ReadFile(flag.Arg(0)); err == nil {
-		mdl = ReadConfig(bitz)
+		mdl = config.Read(bitz)
 	} else {
 		return
 	}

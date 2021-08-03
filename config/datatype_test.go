@@ -27,16 +27,3 @@ func TestGetType(t *testing.T) {
 	}
 
 }
-
-func TestTable(t *testing.T) {
-	amm := 0
-	for _, i := range testTableUser.Columns(testModel.Types) {
-		switch i.String() {
-		case `user.id`, `user.name`, `user.role`:
-			amm++
-		}
-	}
-	expectInt(t, 3, amm)
-	expectInt(t, 2, len(testTableRole.Enum(testModel.Types).Values))
-	expectInt(t, 0, len(testTableUser.Enum(testModel.Types).Values))
-}

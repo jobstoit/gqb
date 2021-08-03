@@ -9,14 +9,6 @@
 // The command takes the following flags as arguments.
 //   -migrate           Specifies the output for a generated sql migration
 //
-//   -db                Directly inserts the configured structure into the database
-//                      using the DB_DRIVER and DB_CONNECTION_STRING enviroment
-//                      variables or the flags for this mode
-//
-//   -dvr               Set the driver for the db flag
-//
-//   -cs                Sets the connection string for the db flag
-//
 //   -model             Writes the configuration to NiseVoid/qb model(s) takes
 //                      the output file(s) as argument
 //
@@ -66,8 +58,6 @@
 package main
 
 import (
-	"bytes"
-	"database/sql"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -84,8 +74,6 @@ import (
 var (
 	migrateFlag = flag.String(`migrate`, ``, `Specifies the output for the SQL migration`)
 	dbFlag      = flag.Bool(`db`, false, `Directly inserts the configured structur into the database`)
-	dvrFlag     = flag.String(`dvr`, os.Getenv(`DB_DRIVER`), `Sets the driver for the db flag. (postgres by default)`)
-	csFlag      = flag.String(`cs`, os.Getenv(`DB_CONNECTION_STRING`), `Sets the connection string for the db flag`)
 	modelFlag   = flag.String(`model`, ``, `Sets the output for the Nisevoid/qb models`)
 	pkgFlag     = flag.String(`pkg`, ``, `Used by the model flag, sets the package name of the model file(s)`)
 )
@@ -131,21 +119,6 @@ import (
 			defer file.Close() // nolint: errcheck
 			model.CreateMigration(mdl, file)
 			success[`migration`] = `written to ` + *migrateFlag
-		} else {
-			errs = append(errs, err)
-		}
-	}
-
-	if *dbFlag {
-		buff := new(bytes.Buffer)
-		model.CreateMigration(mdl, buff)
-
-		if db, err := sql.Open(mdl.Driver, *csFlag); err == nil {
-			defer db.Close() // nolint: errcheck
-			if _, err = db.Exec(buff.String()); err != nil {
-				errs = append(errs, err)
-			}
-			success[`db`] = `succesfully executed the migration in the database`
 		} else {
 			errs = append(errs, err)
 		}

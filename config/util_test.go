@@ -3,56 +3,55 @@ package config
 import "testing"
 
 var (
-	testTableUser  = Table(`user`)
-	testTableImage = Table(`image`)
-	testTableRole  = Table(`role`)
+	testTableUser  = `user`
+	testTableImage = `image`
+	testTableRole  = `role`
 
 	testModel = Model{
-		Tables: []*Table{&testTableUser, &testTableImage, &testTableRole},
-		Types: []DataType{
-			&Column{
-				Table:   &testTableUser,
+		Types: map[string]DataType{
+			testTableUser + `.id`: &Column{
+				table:   testTableUser,
 				Name:    `id`,
 				Primary: true,
 				rawType: `int`,
 			},
-			&Column{
-				Table:   &testTableUser,
+			testTableUser + `.name`: &Column{
+				table:   testTableUser,
 				Name:    `name`,
 				rawType: `varchar`,
 				Size:    100,
 			},
-			&Column{
-				Table:   &testTableUser,
+			testTableUser + `.last_name`: &Column{
+				table:   testTableUser,
 				Name:    `last_name`,
 				rawType: `varchar`,
 				Size:    100,
 			},
-			&Column{
-				Table:    &testTableUser,
+			testTableUser + `.bio`: &Column{
+				table:    testTableUser,
 				Name:     `bio`,
 				rawType:  `text`,
 				Nullable: true,
 			},
-			&Column{
-				Table:   &testTableUser,
+			testTableUser + `.role`: &Column{
+				table:   testTableUser,
 				Name:    `role`,
 				rawType: `role`,
 				Default: `GENERAL`,
 			},
-			&Column{
-				Table:   &testTableImage,
+			testTableImage + `.id`: &Column{
+				table:   testTableImage,
 				Name:    `id`,
 				Primary: true,
 				rawType: `int`,
 			},
-			&Column{
-				Table:   &testTableImage,
+			testTableImage + `user_id`: &Column{
+				table:   testTableImage,
 				Name:    `user_id`,
 				rawType: `user.id`,
 			},
-			&Enum{
-				Table:  &testTableRole,
+			testTableRole: &Enum{
+				table:  testTableRole,
 				Values: []string{`ADMIN`, `GENERAL`},
 			},
 		},

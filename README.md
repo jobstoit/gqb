@@ -29,31 +29,31 @@ pkg: models                             # optional
 driver: mysql                           # optional (default postgres)
 tables:
   users:
-    id: int, primary
-    email: varchar, unique
+    id: int primary
+    email: varchar unique
     password: varchar
     first_name: varchar(50)
     last_name: varchar(100)
     role: role                          # foreign key (enum)
 
   posts:
-    id: int, primary
+    id: int primary
     created_by: users.id                # foreign key
-    created_at: datetime, default(NOW)
-    updated_at: datetime, default(NOW)
+    created_at: datetime default(NOW)
+    updated_at: datetime default(NOW)
     title: varchar
-    subtitle: varchar, nullable
+    subtitle: varchar nullable
     context: text
 
   images:
-    id: int, primary
+    id: int primary
     title: varchar
-    created_at: datetime, default(NOW)
-    updated_at: datetime, default(NOW)
+    created_at: datetime default(NOW)
+    updated_at: datetime default(NOW)
     path: varchar
 
   post_images:
-    id: int, primary
+    id: int primary
     image_id: images.id                 # foreign key
     post_id: posts(id)                  # another foreign key
     description: varchar
@@ -84,11 +84,3 @@ Then start using it, try:
 ```bash
 $ gqb
 ```
-
-# Todo
-- [x] Create configuration reader
-- [x] Create SQL generator
-- [x] Create NiseVoid/qb generator
-- [ ] Create a database differential inspector (config against the current state of the database)
-- [ ] Create a diffential SQL generator & executor
-- [ ] Create a seeder & seeder configuration

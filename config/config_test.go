@@ -12,7 +12,7 @@ var testConfig []byte
 
 func TestRead(t *testing.T) {
 	m := Read(testConfig)
-	expectInt(t, 5, len(m.Tables))
+	expectInt(t, 5, len(m.Tables()))
 
 	for _, typ := range m.Types {
 		if col, ok := typ.(*Column); ok {
@@ -23,7 +23,7 @@ func TestRead(t *testing.T) {
 				}
 			case `created_by`: // test foreign key ref
 				if fk, ok := col.DataType.(*Column); !ok ||
-					fk.Table.String() != `user` ||
+					fk.Table() != `user` ||
 					fk.Name != `id` {
 					t.Error(`user_id does not have the proper foreign key`)
 				}

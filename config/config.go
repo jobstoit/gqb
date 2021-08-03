@@ -4,7 +4,6 @@ package config
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"regexp"
 	"strconv"
@@ -15,16 +14,15 @@ import (
 
 // this config struct is for mapping the object to the nessasary state
 type config struct {
-	Driver  string                       `yaml:"driver"`
-	Pkg     string                       `yaml:"pkg"`
-	Tables  map[string]map[string]string `yaml:"tables,flow"`
-	Enums   map[string][]string          `yaml:"enums,flow"`
-	Seeders map[string][]string          `yaml:"seeds,flow"`
+	Driver string                       `yaml:"driver"`
+	Pkg    string                       `yaml:"pkg"`
+	Tables map[string]map[string]string `yaml:"tables,flow"`
+	Enums  map[string][]string          `yaml:"enums,flow"`
 }
 
 // ReadConfig reads the data of the given yaml file into a model
 func Read(data []byte) (m Model) {
-	c := config{}
+	var c config
 	catch(yaml.Unmarshal(data, &c), `Yaml configuration is unreadable`)
 
 	defaultReg := regexp.MustCompile(`default\((\w+)\)`)
@@ -32,12 +30,12 @@ func Read(data []byte) (m Model) {
 
 	m.Pkg = c.Pkg
 	m.Driver = c.Driver
+	m.Types = make(map[string]DataType)
 
 	for i, tab := range c.Tables {
-		t := Table(i)
 		for e, context := range tab {
 			c := Column{}
-			c.Table = &t
+			c.table = i
 			c.Name = e
 
 			if match := defaultReg.FindStringSubmatch(context); len(match) == 2 {
@@ -48,22 +46,23 @@ func Read(data []byte) (m Model) {
 				c.Constraints = strings.Split(match[1], `;`)
 			}
 
-			c.rawType, c.Size = getRawType(context)
+			typ, size := getRawType(context)
+			c.rawType = typ
+			c.Size = size
 			c.Primary = strings.Contains(context, `primary`)
 			c.Nullable = strings.Contains(context, `nullable`)
 			c.Unique = strings.Contains(context, `unique`)
 
-			m.Types = append(m.Types, &c)
+			key := i + `.` + e
+			m.Types[key] = &c
 		}
-		m.Tables = append(m.Tables, &t)
 	}
 
 	for i, enu := range c.Enums {
-		t := Table(i)
-		m.Tables = append(m.Tables, &t)
-		m.Types = append(m.Types, &Enum{&t, enu})
+		m.Types[i] = &Enum{i, enu}
 	}
 
+	// Set the types of each column
 	for _, typ := range m.Types {
 		if col, ok := typ.(*Column); ok {
 			m.GetType(col)
@@ -73,25 +72,19 @@ func Read(data []byte) (m Model) {
 	return
 }
 
-var typeDataReg = regexp.MustCompile(`^\s?[\w\_\.]+(\(\s?\d{0,3}\s?\))?`)
+var typeDataReg = regexp.MustCompile(`^([\w\_\.]+)(\(\s?(\d{0,3})\s?\))?`)
 
 func getRawType(context string) (rawType string, size int) {
-
 	typeData := typeDataReg.FindStringSubmatch(context)
 	if len(typeData) == 0 {
-		log.Fatal(`Type not defined: ` + context)
+		fatal(`Type not defined: ` + context)
 	}
-	removeSpacesReg := regexp.MustCompile(`\s`)
 
-	rawType = removeSpacesReg.ReplaceAllString(typeData[0], ``)
-	if len(typeData) >= 2 && typeData[1] != `` {
-		ssize := strings.Trim(typeData[1], `(`)
-		ssize = strings.Trim(ssize, `)`)
-		isize, err := strconv.Atoi(ssize)
+	rawType = typeData[1]
+	if len(typeData) >= 4 && typeData[2] != `` {
+		isize, err := strconv.Atoi(typeData[3])
 		catch(err, `Datatype in an invalid format: %s\n`, rawType)
-
 		size = isize
-		rawType = strings.Trim(rawType, typeData[1])
 	}
 	return
 }

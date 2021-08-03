@@ -2,8 +2,11 @@
 
 package config
 
+import "fmt"
+
 // DataType is a models data structure
 type DataType interface {
+	Table() string
 	Type() string
 }
 
@@ -13,44 +16,30 @@ type DataType interface {
 type Model struct {
 	Driver string
 	Pkg    string
-	Tables []*Table
-	Types  []DataType
+	Types  map[string]DataType
 }
 
-// Table is a definition of a database table
-type Table string
-
-// String is the stringer implementation
-func (x Table) String() string {
-	return string(x)
-}
-
-// Columns returns the columns with a reference to this specific table
-func (x *Table) Columns(types []DataType) (c []*Column) {
-	for _, typ := range types {
-		if col, ok := typ.(*Column); ok && col.Table == x {
-			c = append(c, col)
+// Tables returns all the tables in the model
+func (x Model) Tables() (tables []string) {
+	keys := make(map[string]bool)
+	for _, t := range x.Types {
+		if t.Table() != `` && !keys[t.Table()] {
+			keys[t.Table()] = true
+			tables = append(tables, t.Table())
 		}
 	}
 	return
 }
 
-// Enum returns the enum values if the type is an enum
-func (x *Table) Enum(types []DataType) Enum {
-	for _, typ := range types {
-		if enu, ok := typ.(*Enum); ok && enu.Table == x {
-			return *enu
-		}
-	}
-	return Enum{}
-}
+//TODO: think about transforming the Types over to a map in order to map them better
+// also look if the Tables array is neccisary for what you want to have
 
 // Column contains the table column properties and
 // lies at the core of the query builder.
 // Note that if the datatype is of type column that
 // the column is a foreign key.
 type Column struct {
-	Table       *Table
+	table       string
 	Name        string
 	DataType    DataType
 	Size        int
@@ -62,20 +51,33 @@ type Column struct {
 	rawType     string
 }
 
-// Type is the datatype implementation
+// Table is the DataType implementation
+func (x Column) Table() string {
+	return x.table
+}
+
+// Type is the DataType implementation
 func (x Column) Type() string {
+	if x.DataType == nil {
+		fmt.Println(x.Name)
+	}
 	return x.DataType.Type()
 }
 
 func (x Column) String() string {
-	return string(*x.Table) + `.` + x.Name
+	return x.Table() + `.` + x.Name
 }
 
 // Enum is en e nummeric object which can be
 // defined as type in the database
 type Enum struct {
-	Table  *Table
+	table  string
 	Values []string
+}
+
+// Table is the DataType implementation
+func (x Enum) Table() string {
+	return x.table
 }
 
 // Type is the DataType implementation
@@ -85,6 +87,11 @@ func (x Enum) Type() string {
 
 // PrimitiveType is a primative database type
 type PrimitiveType string
+
+// Table is the DataType implementation
+func (x PrimitiveType) Table() string {
+	return ``
+}
 
 // Type is the datatype implementation
 func (x PrimitiveType) Type() string {
@@ -100,12 +107,12 @@ func (x Model) GetType(c *Column) {
 
 	for _, typ := range x.Types {
 		if col, ok := typ.(*Column); ok && col != nil &&
-			(c.rawType == col.Table.String()+`.`+col.Name ||
-				c.rawType == col.Table.String()+`(`+col.Name+`)`) {
+			(c.rawType == col.Table()+`.`+col.Name ||
+				c.rawType == col.Table()+`(`+col.Name+`)`) {
 			c.DataType = col
 			return
 		} else if enum, ok := typ.(*Enum); ok && enum != nil &&
-			c.rawType == string(*enum.Table) {
+			c.rawType == enum.Table() {
 			c.DataType = enum
 			return
 		}

@@ -17,6 +17,10 @@ func TestGetType(t *testing.T) {
 	for _, typ := range testModel.Types {
 		if col, ok := typ.(*Column); ok {
 			testModel.GetType(col)
+		}
+	}
+	for _, typ := range testModel.Types {
+		if col, ok := typ.(*Column); ok {
 			if col.Name == `user_id` && col.Type() != `int` {
 				t.Error(`user_id is not of the expected type`)
 			}

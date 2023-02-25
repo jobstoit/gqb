@@ -8,7 +8,7 @@ require (
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/lib/pq v1.1.1
-	golang.org/x/crypto v0.0.0-20191002192127-34f69633bfdc // indirect
+	golang.org/x/crypto v0.1.0 // indirect
 	google.golang.org/appengine v1.6.1 // indirect
 	gopkg.in/yaml.v2 v2.2.4
 )
